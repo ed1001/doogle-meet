@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1710847846608,
+      "tag": "0000_empty_revanche",
+      "breakpoints": true
+    }
+  ]
+}
