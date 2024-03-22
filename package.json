@@ -11,6 +11,7 @@
     "migrate": "drizzle-kit push:pg"
   },
   "dependencies": {
+    "@types/uuid": "^9.0.8",
     "@vercel/postgres": "^0.7.2",
     "drizzle-kit": "^0.20.14",
     "drizzle-orm": "^0.30.3",
