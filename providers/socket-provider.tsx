@@ -1,21 +1,26 @@
 "use client";
 
 import {
+  Dispatch,
   ReactNode,
+  SetStateAction,
   createContext,
   useContext,
   useEffect,
   useState,
 } from "react";
-import { io as ClientIO } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+
+import { SocketEvents } from "@/types";
+import { useParams } from "next/navigation";
 
 type SocketContextType = {
-  socket: any | null;
+  socket?: Socket;
   isConnected: boolean;
+  setMeetingId?: Dispatch<SetStateAction<string | undefined>>;
 };
 
 const SocketContext = createContext<SocketContextType>({
-  socket: null,
   isConnected: false,
 });
 
@@ -24,32 +29,37 @@ export const useSocket = () => useContext(SocketContext);
 type Props = { children: ReactNode };
 
 export const SocketProvider: React.FC<Props> = ({ children }) => {
-  const [socket, setSocket] = useState(null);
+  const params = useParams<{ meetingId: string }>();
+  const { meetingId } = params || {};
+  const [socket, setSocket] = useState<Socket>();
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socketInstance = new (ClientIO as any)(
-      process.env.NEXT_PUBLIC_SITE_URL!,
-      {
-        path: "/api/socket/io",
-        addTrailingSlash: false,
-      },
-    );
+    if (!meetingId) {
+      return;
+    }
 
-    socketInstance.on("connect", () => {
+    const socketInstance = io(process.env.NEXT_PUBLIC_SITE_URL!, {
+      path: "/api/socket/io",
+      addTrailingSlash: false,
+      auth: { meetingId },
+    });
+
+    socketInstance.on(SocketEvents.CONNECT, () => {
       setIsConnected(true);
     });
 
-    socketInstance.on("disconnect", () => {
+    socketInstance.on(SocketEvents.DISCONNECT, () => {
       setIsConnected(false);
     });
 
     setSocket(socketInstance);
 
     return () => {
+      console.log("disconnect");
       socketInstance.disconnect();
     };
-  }, []);
+  }, [meetingId]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>
