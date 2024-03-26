@@ -9,6 +9,7 @@ import {
   PeerConnectionMapping,
   SocketEvents,
 } from "@/types";
+import { getUserMedia } from "@/lib/getUserMedia";
 
 export const peerConfiguration = {
   iceServers: [
@@ -19,27 +20,10 @@ export const peerConfiguration = {
 export const useWebRTC = () => {
   const { socket } = useSocket();
   const localVidRef = useRef<HTMLVideoElement>();
-  const localStream = useRef<MediaStream>();
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [peerConnectionMappings, setPeerConnectionMappings] = useState<
     PeerConnectionMapping[]
   >([]);
-
-  const fetchUserMedia = async () => {
-    if (!localVidRef.current) {
-      throw new Error("local vid ref not defined");
-    }
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      // audio: true,
-    });
-    localVidRef.current.srcObject = stream;
-    localVidRef.current.setAttribute("autoplay", "");
-    localVidRef.current.setAttribute("muted", "");
-    localVidRef.current.setAttribute("playsinline", "");
-
-    return stream;
-  };
 
   const createPeerConnection = useCallback(
     async (inverseSocketId: string, initiatedOffer: boolean) => {
@@ -51,15 +35,18 @@ export const useWebRTC = () => {
         throw Error("No local vid ref");
       }
 
-      if (!localStream.current) {
-        localStream.current = await fetchUserMedia();
+      let stream = localStream;
+
+      if (!stream) {
+        stream = await getUserMedia();
+        setLocalStream(stream);
       }
 
       const peerConnection = new RTCPeerConnection(peerConfiguration);
       const remoteStream = new MediaStream();
 
-      for (const track of localStream.current.getTracks()) {
-        peerConnection.addTrack(track, localStream.current);
+      for (const track of stream.getTracks()) {
+        peerConnection.addTrack(track, stream);
       }
 
       peerConnection.addEventListener("icecandidate", (e) => {
@@ -82,7 +69,7 @@ export const useWebRTC = () => {
 
       return { peerConnection, remoteStream };
     },
-    [socket],
+    [socket, localStream],
   );
 
   const createOffer = useCallback(
@@ -193,9 +180,9 @@ export const useWebRTC = () => {
       return;
     }
 
-    if (!localStream.current) {
-      fetchUserMedia().then((stream) => {
-        localStream.current = stream;
+    if (!localStream) {
+      getUserMedia().then((stream) => {
+        setLocalStream(stream);
         socket.emit(SocketEvents.READY_TO_JOIN_MEETING);
       });
     }
@@ -213,7 +200,14 @@ export const useWebRTC = () => {
       socket.off(SocketEvents.ICE_CANDIDATE_FROM_SERVER, addIceCandidate);
       socket.off(SocketEvents.CLIENT_DISCONNECTED, removePeer);
     };
-  }, [socket, createOffer, addAnswer, answerOffer, addIceCandidate]);
+  }, [
+    socket,
+    createOffer,
+    addAnswer,
+    answerOffer,
+    addIceCandidate,
+    localStream,
+  ]);
 
-  return { localVidRef, peerConnectionMappings, socketId: socket?.id };
+  return { localVidRef, localStream, peerConnectionMappings };
 };
