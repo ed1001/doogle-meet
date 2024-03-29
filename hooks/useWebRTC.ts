@@ -27,38 +27,27 @@ export const useWebRTC = () => {
 
   const createPeerConnection = useCallback(
     async (inverseSocketId: string, initiatedOffer: boolean) => {
-      if (!socket) {
-        throw Error("No socket");
-      }
-
-      if (!localVidRef.current) {
-        throw Error("No local vid ref");
-      }
-
-      let stream = localStream;
-
-      if (!stream) {
-        stream = await getUserMedia();
-        setLocalStream(stream);
-      }
+      if (!socket) throw Error("No socket");
+      if (!localVidRef.current) throw Error("No local vid ref");
+      if (!localStream) throw Error("No local stream");
 
       const peerConnection = new RTCPeerConnection(peerConfiguration);
       const remoteStream = new MediaStream();
 
-      for (const track of stream.getTracks()) {
-        peerConnection.addTrack(track, stream);
+      for (const track of localStream.getTracks()) {
+        peerConnection.addTrack(track, localStream);
       }
 
       peerConnection.addEventListener("icecandidate", (e) => {
+        if (!e.candidate) return;
+
         const payload: IceCandidateFromClientPayload = {
-          iceCandidate: e.candidate!,
+          iceCandidate: e.candidate,
           inverseSocketId,
           initiatedOffer,
         };
 
-        if (e.candidate) {
-          socket.emit(SocketEvents.ICE_CANDIDATE_FROM_CLIENT, payload);
-        }
+        socket.emit(SocketEvents.ICE_CANDIDATE_FROM_CLIENT, payload);
       });
 
       peerConnection.addEventListener("track", (e) => {
@@ -74,9 +63,7 @@ export const useWebRTC = () => {
 
   const createOffer = useCallback(
     async (inverseSocketId: string) => {
-      if (!socket) {
-        throw new Error("No socket");
-      }
+      if (!socket) throw new Error("No socket");
 
       const { peerConnection, remoteStream } = await createPeerConnection(
         inverseSocketId,
@@ -103,9 +90,7 @@ export const useWebRTC = () => {
 
   const answerOffer = useCallback(
     async (callConnection: CallConnection) => {
-      if (!socket) {
-        throw new Error("socket does not exist");
-      }
+      if (!socket) throw new Error("socket does not exist");
 
       const { peerConnection, remoteStream } = await createPeerConnection(
         callConnection.offerSocketId,
@@ -143,11 +128,9 @@ export const useWebRTC = () => {
         (pc) => pc.inverseSocketId === call.answerSocketId,
       );
 
-      if (!pcMapping) {
-        throw new Error("could not find peer connection while adding answer");
-      }
+      if (!pcMapping || !call.answer) return;
 
-      await pcMapping.peerConnection.setRemoteDescription(call.answer!);
+      await pcMapping.peerConnection.setRemoteDescription(call.answer);
     },
     [peerConnectionMappings],
   );
@@ -176,29 +159,27 @@ export const useWebRTC = () => {
   };
 
   useEffect(() => {
-    if (!socket) {
-      return;
-    }
+    if (!socket) return;
 
     if (!localStream) {
       getUserMedia().then((stream) => {
         setLocalStream(stream);
-        socket.emit(SocketEvents.READY_TO_JOIN_MEETING);
+        socket.emit(SocketEvents.PEER_READY_FOR_OFFERS);
       });
     }
 
-    socket.on(SocketEvents.PEER_JOINED_MEETING, createOffer);
+    socket.on(SocketEvents.SEND_PEER_OFFERS, createOffer);
     socket.on(SocketEvents.NEW_OFFER, answerOffer);
     socket.on(SocketEvents.ANSWER_RESPONSE, addAnswer);
     socket.on(SocketEvents.ICE_CANDIDATE_FROM_SERVER, addIceCandidate);
-    socket.on(SocketEvents.CLIENT_DISCONNECTED, removePeer);
+    socket.on(SocketEvents.CLIENT_LEFT, removePeer);
 
     return () => {
-      socket.off(SocketEvents.PEER_JOINED_MEETING, createOffer);
+      socket.off(SocketEvents.SEND_PEER_OFFERS, createOffer);
       socket.off(SocketEvents.NEW_OFFER, answerOffer);
       socket.off(SocketEvents.ANSWER_RESPONSE, addAnswer);
       socket.off(SocketEvents.ICE_CANDIDATE_FROM_SERVER, addIceCandidate);
-      socket.off(SocketEvents.CLIENT_DISCONNECTED, removePeer);
+      socket.off(SocketEvents.CLIENT_LEFT, removePeer);
     };
   }, [
     socket,

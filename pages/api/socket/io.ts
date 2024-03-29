@@ -5,15 +5,19 @@ import {
   NextApiResponseServerIo,
   CallConnection,
   SocketEvents,
-  SocketIdsInMeetings,
   OfferPayload,
   IceCandidateFromClientPayload,
+  MeetingState,
+  RoomType,
 } from "@/types";
 
 export const config = { api: { bodyParser: false } };
 
-let meetings: SocketIdsInMeetings = {};
 let callConnections: CallConnection[] = [];
+
+const getRoomId = (roomType: RoomType, meetingId: string) => {
+  return `${roomType}:${meetingId}`;
+};
 
 const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
   if (res.socket.server.io) {
@@ -27,35 +31,59 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
   const httpServer = res.socket.server as any;
   const io = new ServerIO(httpServer, { path, addTrailingSlash: false });
 
+  const reportParticipantCount = (roomId: string, socketId: string) => {
+    const socket = io.sockets.sockets.get(socketId);
+
+    if (!socket) throw new Error("socket does not exist");
+
+    const { meetingId } = socket.handshake.auth || {};
+    const lobbyId = getRoomId("lobby", meetingId);
+    const chatRoomId = getRoomId("chat", meetingId);
+
+    if (![lobbyId, chatRoomId].includes(roomId)) return;
+
+    const participantCount = io.sockets.adapter.rooms.get(chatRoomId)?.size;
+    io.to(lobbyId).emit(SocketEvents.PARTICIPANT_COUNT, participantCount);
+  };
+
+  io.of("/").adapter.on("join-room", reportParticipantCount);
+  io.of("/").adapter.on("leave-room", reportParticipantCount);
+
   io.on(SocketEvents.CONNECTION, (socket) => {
     const { meetingId } = socket.handshake.auth;
+    const lobbyId = getRoomId("lobby", meetingId);
+    const chatRoomId = getRoomId("chat", meetingId);
 
-    socket.on(SocketEvents.READY_TO_JOIN_MEETING, () => {
-      socket.join(meetingId);
+    socket.on(SocketEvents.MEETING_STATE, (meetingState: MeetingState) => {
+      switch (meetingState) {
+        case MeetingState.LOBBY:
+          socket.leave(chatRoomId);
+          socket.join(lobbyId);
+          return;
+        case MeetingState.CHAT:
+          socket.leave(lobbyId);
+          return;
+        case MeetingState.LEFT:
+          socket.leave(chatRoomId);
+          socket.leave(lobbyId);
+          return;
+        default:
+          const exhaustiveCheck: never = meetingState;
+          throw new Error(exhaustiveCheck);
+      }
+    });
 
-      const socketsInMeeting = meetings[meetingId] || [];
-      meetings[meetingId] = [...socketsInMeeting, socket.id];
-
-      socket.to(meetingId).emit(SocketEvents.PEER_JOINED_MEETING, socket.id);
+    socket.on(SocketEvents.PEER_READY_FOR_OFFERS, () => {
+      socket.join(chatRoomId);
+      socket.to(chatRoomId).emit(SocketEvents.SEND_PEER_OFFERS, socket.id);
     });
 
     socket.on(SocketEvents.DISCONNECT, () => {
-      const socketsInMeeting = meetings[meetingId] || [];
-      const updatedSocketsInMeeting = socketsInMeeting.filter(
-        (socketId) => socketId !== socket.id,
-      );
-
       callConnections = callConnections.filter((cc) =>
         [cc.answerSocketId, cc.offerSocketId].includes(socket.id),
       );
 
-      if (!updatedSocketsInMeeting.length) {
-        return delete meetings[meetingId];
-      }
-
-      meetings[meetingId] = updatedSocketsInMeeting;
-
-      socket.to(meetingId).emit(SocketEvents.CLIENT_DISCONNECTED, socket.id);
+      socket.to(chatRoomId).emit(SocketEvents.CLIENT_LEFT, socket.id);
     });
 
     socket.on(SocketEvents.OFFER, (offerPayload: OfferPayload) => {
@@ -86,9 +114,8 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
             c.answerSocketId === callConnection.answerSocketId,
         );
 
-        if (!callConnectionToUpdate) {
+        if (!callConnectionToUpdate)
           throw new Error("no call connection to update");
-        }
 
         ackFunction(callConnectionToUpdate.offerIceCandidates);
         callConnectionToUpdate.answer = callConnection.answer;
@@ -115,9 +142,7 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
           );
         });
 
-        if (!callConnection) {
-          throw new Error("callConnection does not exist");
-        }
+        if (!callConnection) throw new Error("callConnection does not exist");
 
         const { offerIceCandidates, answerIceCandidates } = callConnection;
 

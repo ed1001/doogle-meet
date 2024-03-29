@@ -11,17 +11,22 @@ import {
 } from "react";
 import { io, Socket } from "socket.io-client";
 
-import { SocketEvents } from "@/types";
+import { MeetingState, SocketEvents } from "@/types";
 import { useParams } from "next/navigation";
 
 type SocketContextType = {
   socket?: Socket;
   isConnected: boolean;
   setMeetingId?: Dispatch<SetStateAction<string | undefined>>;
+  setMeetingState?: Dispatch<SetStateAction<MeetingState>>;
+  meetingState: MeetingState;
+  participantCount: number;
 };
 
 const SocketContext = createContext<SocketContextType>({
   isConnected: false,
+  meetingState: MeetingState.LOBBY,
+  participantCount: 0,
 });
 
 export const useSocket = () => useContext(SocketContext);
@@ -33,6 +38,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   const { meetingId } = params || {};
   const [socket, setSocket] = useState<Socket>();
   const [isConnected, setIsConnected] = useState(false);
+  const [participantCount, setParticipantCount] = useState(0);
+  const [meetingState, setMeetingState] = useState<MeetingState>(
+    MeetingState.LOBBY,
+  );
 
   useEffect(() => {
     if (!meetingId) {
@@ -53,16 +62,31 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
       setIsConnected(false);
     });
 
+    socketInstance.on(SocketEvents.PARTICIPANT_COUNT, setParticipantCount);
+
     setSocket(socketInstance);
 
     return () => {
-      console.log("disconnect");
       socketInstance.disconnect();
     };
   }, [meetingId]);
 
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.emit(SocketEvents.MEETING_STATE, meetingState);
+  }, [meetingState, socket]);
+
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider
+      value={{
+        socket,
+        isConnected,
+        meetingState,
+        setMeetingState,
+        participantCount,
+      }}
+    >
       {children}
     </SocketContext.Provider>
   );

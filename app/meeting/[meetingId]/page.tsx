@@ -1,38 +1,28 @@
 "use client";
 
-import { useWebRTC } from "@/hooks/useWebRTC";
+import { useSocket } from "@/providers";
+import { MeetingState } from "@/types";
+
+import Lobby from "./lobby/Lobby";
+import Chat from "./chat/Chat";
+import Left from "./left/Left";
 
 export default function MeetingRoom() {
-  const { localVidRef, peerConnectionMappings, socketId } = useWebRTC();
+  const { meetingState } = useSocket();
 
-  return (
-    <main className="flex flex-col justify-between">
-      <p>{socketId}</p>
-      <video
-        ref={(element) => {
-          if (element) {
-            localVidRef.current = element;
-          }
-        }}
-        className="h-full w-1/2 border"
-      />
-      {peerConnectionMappings.map((pcMapping) => {
-        return (
-          <video
-            key={pcMapping.inverseSocketId}
-            ref={(element) => {
-              if (element) {
-                element.srcObject = pcMapping.remoteStream;
-                element.setAttribute("autoplay", "");
-                element.setAttribute("muted", "");
-                element.setAttribute("playsinline", "");
-              }
-            }}
-            className="h-full w-1/2 border"
-            autoPlay
-          />
-        );
-      })}
-    </main>
-  );
+  const renderMeeting = () => {
+    switch (meetingState) {
+      case MeetingState.LOBBY:
+        return <Lobby />;
+      case MeetingState.CHAT:
+        return <Chat />;
+      case MeetingState.LEFT:
+        return <Left />;
+      default:
+        const exhaustiveCheck: never = meetingState;
+        throw new Error(exhaustiveCheck);
+    }
+  };
+
+  return renderMeeting();
 }

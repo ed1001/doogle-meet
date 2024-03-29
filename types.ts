@@ -10,10 +10,6 @@ export type NextApiResponseServerIo = NextApiResponse & {
   };
 };
 
-export type SocketIdsInMeetings = {
-  [meetingId: string]: string[];
-};
-
 export type CallConnection = {
   offerSocketId: string;
   offer: RTCSessionDescriptionInit;
@@ -43,9 +39,11 @@ export enum SocketEvents {
   CONNECTION = "connection",
   CONNECT = "connect",
   DISCONNECT = "disconnect",
-  CLIENT_DISCONNECTED = "clientDisconnected",
-  READY_TO_JOIN_MEETING = "readyToJoinMeeting",
-  PEER_JOINED_MEETING = "peerJoinedMeeting",
+  PARTICIPANT_COUNT = "participantCount",
+  CLIENT_LEFT = "clientLeft",
+  MEETING_STATE = "meetingState",
+  PEER_READY_FOR_OFFERS = "peerReadyForOffers",
+  SEND_PEER_OFFERS = "sendPeerOffers",
   OFFER = "offer",
   ANSWER = "answer",
   NEW_OFFER = "newOffer",
@@ -59,3 +57,11 @@ export type PeerConnectionMapping = {
   inverseSocketId: string;
   remoteStream: MediaStream;
 };
+
+export enum MeetingState {
+  LOBBY = "lobby",
+  CHAT = "chat",
+  LEFT = "left",
+}
+
+export type RoomType = "lobby" | "chat";

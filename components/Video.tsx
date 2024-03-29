@@ -7,12 +7,11 @@ export const Video = forwardRef<HTMLVideoElement, Props>(function Video(
   ref: ForwardedRef<HTMLVideoElement>,
 ) {
   return (
-    <div className="flex items-center aspect-video bg-black">
-      <video
-        ref={ref}
-        className="w-full h-full object-contain"
-        style={{ maxHeight: `${maxHeight}px` }}
-      />
+    <div
+      className="flex items-center aspect-video bg-black rounded-lg"
+      style={{ maxHeight: `${maxHeight}px` }}
+    >
+      <video ref={ref} className="w-full h-full object-contain" />
     </div>
   );
 });
