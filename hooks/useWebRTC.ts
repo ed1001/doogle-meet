@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
-import { useSocket } from "@/providers/socket-provider";
 import {
   CallConnection,
   IceCandidateFromClientPayload,
@@ -9,7 +8,7 @@ import {
   PeerConnectionMapping,
   SocketEvents,
 } from "@/types";
-import { getUserMedia } from "@/lib/getUserMedia";
+import { useAppContext } from "@/context/app-context";
 
 export const peerConfiguration = {
   iceServers: [
@@ -18,24 +17,25 @@ export const peerConfiguration = {
 };
 
 export const useWebRTC = () => {
-  const { socket } = useSocket();
-  const localVidRef = useRef<HTMLVideoElement>();
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [peerConnectionMappings, setPeerConnectionMappings] = useState<
-    PeerConnectionMapping[]
-  >([]);
+  const socketInitiated = useRef<boolean>(false);
+  const {
+    socket,
+    localStream,
+    peerConnectionMappings,
+    setPeerConnectionMappings,
+  } = useAppContext();
 
   const createPeerConnection = useCallback(
     async (inverseSocketId: string, initiatedOffer: boolean) => {
       if (!socket) throw Error("No socket");
-      if (!localVidRef.current) throw Error("No local vid ref");
-      if (!localStream) throw Error("No local stream");
 
       const peerConnection = new RTCPeerConnection(peerConfiguration);
       const remoteStream = new MediaStream();
 
-      for (const track of localStream.getTracks()) {
-        peerConnection.addTrack(track, localStream);
+      if (localStream) {
+        for (const track of localStream.getTracks()) {
+          peerConnection.addTrack(track, localStream);
+        }
       }
 
       peerConnection.addEventListener("icecandidate", (e) => {
@@ -85,7 +85,12 @@ export const useWebRTC = () => {
       const offerPayload: OfferPayload = { offer, inverseSocketId };
       socket.emit(SocketEvents.OFFER, offerPayload);
     },
-    [socket, createPeerConnection, peerConnectionMappings],
+    [
+      socket,
+      createPeerConnection,
+      peerConnectionMappings,
+      setPeerConnectionMappings,
+    ],
   );
 
   const answerOffer = useCallback(
@@ -119,7 +124,7 @@ export const useWebRTC = () => {
         peerConnection.addIceCandidate(iceCandidate);
       }
     },
-    [createPeerConnection, socket],
+    [createPeerConnection, socket, setPeerConnectionMappings],
   );
 
   const addAnswer = useCallback(
@@ -152,27 +157,30 @@ export const useWebRTC = () => {
     [peerConnectionMappings],
   );
 
-  const removePeer = (inverseSocketId: string) => {
-    setPeerConnectionMappings((prev) =>
-      prev.filter((pcMapping) => pcMapping.inverseSocketId !== inverseSocketId),
-    );
-  };
+  const removePeer = useCallback(
+    (inverseSocketId: string) => {
+      setPeerConnectionMappings((prev) =>
+        prev.filter(
+          (pcMapping) => pcMapping.inverseSocketId !== inverseSocketId,
+        ),
+      );
+    },
+    [setPeerConnectionMappings],
+  );
 
   useEffect(() => {
     if (!socket) return;
-
-    if (!localStream) {
-      getUserMedia().then((stream) => {
-        setLocalStream(stream);
-        socket.emit(SocketEvents.PEER_READY_FOR_OFFERS);
-      });
-    }
 
     socket.on(SocketEvents.SEND_PEER_OFFERS, createOffer);
     socket.on(SocketEvents.NEW_OFFER, answerOffer);
     socket.on(SocketEvents.ANSWER_RESPONSE, addAnswer);
     socket.on(SocketEvents.ICE_CANDIDATE_FROM_SERVER, addIceCandidate);
     socket.on(SocketEvents.CLIENT_LEFT, removePeer);
+
+    if (!socketInitiated.current) {
+      socket.emit(SocketEvents.PEER_READY_FOR_OFFERS);
+      socketInitiated.current = true;
+    }
 
     return () => {
       socket.off(SocketEvents.SEND_PEER_OFFERS, createOffer);
@@ -187,8 +195,9 @@ export const useWebRTC = () => {
     addAnswer,
     answerOffer,
     addIceCandidate,
-    localStream,
+    removePeer,
+    setPeerConnectionMappings,
   ]);
 
-  return { localVidRef, localStream, peerConnectionMappings };
+  return { peerConnectionMappings };
 };

@@ -1,8 +1,8 @@
-import { useSocket } from "@/providers";
+import { useAppContext } from "@/context/app-context";
 import { MeetingState } from "@/types";
 
 export default function Left() {
-  const { setMeetingState } = useSocket();
+  const { setMeetingState } = useAppContext();
 
   return (
     <main className="flex flex-col h-lvh">

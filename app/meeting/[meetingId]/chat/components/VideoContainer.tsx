@@ -1,12 +1,15 @@
 "use client";
 
+import { attachStreamToVideo } from "@/lib/attachStreamToVideo";
+import { useAppContext } from "@/context/app-context";
 import { useWebRTC } from "@/hooks/useWebRTC";
 import { useVideoLayout } from "../hooks/useVideoThing";
-import { Video } from "@/components/Video";
-import { attachStreamToVideo } from "@/lib/attachStreamToVideo";
+
+import { Video } from "@/components/video/Video";
 
 export default function VideoContainer() {
-  const { peerConnectionMappings, localVidRef, localStream } = useWebRTC();
+  const { localVidRefCallback } = useAppContext();
+  const { peerConnectionMappings } = useWebRTC();
   const { gridRef, maxVideoHeight } = useVideoLayout(
     peerConnectionMappings.length + 1,
   );
@@ -18,12 +21,8 @@ export default function VideoContainer() {
     >
       <Video
         maxHeight={maxVideoHeight}
-        ref={(element: HTMLVideoElement) => {
-          if (!element) return;
-
-          localVidRef.current = element;
-          localStream && attachStreamToVideo(localStream, element);
-        }}
+        ref={localVidRefCallback}
+        showControlPanel
       />
       {peerConnectionMappings.map((pcMapping) => {
         return (

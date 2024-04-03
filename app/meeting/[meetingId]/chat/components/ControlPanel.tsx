@@ -1,8 +1,8 @@
-import { useSocket } from "@/providers";
+import { useAppContext } from "@/context/app-context";
 import { MeetingState } from "@/types";
 
 export const ControlPanel = () => {
-  const { setMeetingState } = useSocket();
+  const { setMeetingState } = useAppContext();
 
   return (
     <div className="flex-shrink-0 h-40 bg-sky-200">
