@@ -56,8 +56,6 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
         video: { deviceId: videoDeviceId || currentDeviceIds.videoinput },
       };
 
-      console.log(constraintsWithDefaults);
-
       try {
         const stream = await navigator.mediaDevices.getUserMedia(
           constraintsWithDefaults,
