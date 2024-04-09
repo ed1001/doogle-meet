@@ -1,4 +1,4 @@
-import { lcm } from "@/lib/numbers";
+import { leastCommonMultiple } from "@/lib/numbers";
 import { useRef, useState, useEffect, useCallback } from "react";
 
 export const useVideoLayout = (videoCount: number) => {
@@ -20,20 +20,16 @@ export const useVideoLayout = (videoCount: number) => {
     let rows = Math.ceil(videoCount / columns);
     let optimalColumns = columns;
     let optimalRows = rows;
-    let remainingSpace = Infinity;
-    const { gap: gapString } = getComputedStyle(gridRef.current);
-    const gap = parseInt(gapString);
-    const dimensionAdjustment = gap * 2;
-    let videoHeight;
-    let videoWidth;
+    let lastRemainingSpace = Infinity;
+    let videoWidth = 1600;
+    let videoHeight = 900;
+    const gapCompensation = parseInt(getComputedStyle(gridRef.current).gap) * 2;
 
     while (true) {
       rows = Math.ceil(videoCount / columns);
-      let cellHeight = containerHeight / rows + dimensionAdjustment;
-      let cellWidth = cellHeight * aspectRatio + dimensionAdjustment;
-
+      let cellHeight = containerHeight / rows + gapCompensation;
+      let cellWidth = cellHeight * aspectRatio + gapCompensation;
       const maxVideoPerRow = Math.floor(videoCount / rows);
-
       const cropWidth = maxVideoPerRow * cellWidth > containerWidth;
 
       if (cropWidth) {
@@ -48,15 +44,14 @@ export const useVideoLayout = (videoCount: number) => {
         cellWidth = cellHeight * aspectRatio;
       }
 
-      const cellAreaSingle = cellHeight * cellWidth;
-      const cellAreaTotal = cellAreaSingle * videoCount;
-      const currentRemainingSpace = containerArea - cellAreaTotal;
+      const occupiedSpace = cellHeight * cellWidth * videoCount;
+      const currentRemainingSpace = containerArea - occupiedSpace;
 
-      if (currentRemainingSpace < remainingSpace) {
-        remainingSpace = currentRemainingSpace;
+      if (currentRemainingSpace < lastRemainingSpace) {
+        lastRemainingSpace = currentRemainingSpace;
         optimalColumns = columns;
         optimalRows = rows;
-        videoHeight = cellHeight - dimensionAdjustment;
+        videoHeight = cellHeight - gapCompensation;
         videoWidth = videoHeight * aspectRatio;
         columns++;
         continue;
@@ -65,31 +60,28 @@ export const useVideoLayout = (videoCount: number) => {
       break;
     }
 
-    setMaxVideoHeight(videoHeight!);
-
-    gridRef.current.style.width = `${videoWidth! * optimalColumns}px`;
-
+    gridRef.current.style.width = `${videoWidth * optimalColumns}px`;
     const remainder = videoCount % optimalColumns;
-
-    let multiply = lcm(optimalColumns, remainder) || 1;
-    optimalColumns = optimalColumns * multiply;
+    let commonMultiple = leastCommonMultiple(optimalColumns, remainder) || 1;
+    optimalColumns = optimalColumns * commonMultiple;
     const cells = Array.from(gridRef.current.children) as HTMLElement[];
 
     for (const cell of cells) {
-      cell.style.gridColumn = `span ${multiply}`;
+      cell.style.gridColumn = `span ${commonMultiple}`;
     }
 
     if (remainder) {
       const remainingCells = [...cells].slice(-remainder);
-      const emptyCols = optimalColumns - multiply * remainder;
-      let shiftBy = emptyCols / 2;
+      const emptyColumns = optimalColumns - commonMultiple * remainder;
+      let shiftRightBy = (emptyColumns / 2 + 1).toString();
 
       for (const cell of remainingCells) {
-        cell.style.gridColumn = `${(shiftBy + 1).toString()} / span ${multiply} `;
-        shiftBy += multiply;
+        cell.style.gridColumn = `${shiftRightBy} / span ${commonMultiple} `;
+        shiftRightBy += commonMultiple;
       }
     }
 
+    setMaxVideoHeight(videoHeight);
     gridRef.current.style.gridTemplateColumns = `repeat(${optimalColumns}, 1fr)`;
     gridRef.current.style.gridTemplateRows = `repeat(${optimalRows}, 1fr)`;
   }, [videoCount]);

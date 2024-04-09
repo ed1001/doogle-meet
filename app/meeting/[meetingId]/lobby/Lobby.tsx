@@ -30,7 +30,12 @@ export default function Lobby() {
       <Navbar />
       <div className="flex grow justify-center h-full p-4">
         <div className="flex flex-col">
-          <Video maxHeight={400} ref={localVidRefCallback} showControlPanel />
+          <Video
+            muted
+            maxHeight={400}
+            ref={localVidRefCallback}
+            showControlPanel
+          />
           <DevicePanel />
         </div>
         <div>

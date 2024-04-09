@@ -65,3 +65,4 @@ export enum MeetingState {
 }
 
 export type RoomType = "lobby" | "chat";
+export type Size = "sm" | "lg";

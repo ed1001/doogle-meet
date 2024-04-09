@@ -1,10 +1,10 @@
-export const gcd = (a: number, b: number): number => {
+const greatestCommonDivisor = (a: number, b: number): number => {
   if (b === 0) {
     return a;
   }
-  return gcd(b, a % b);
+  return greatestCommonDivisor(b, a % b);
 };
 
-export const lcm = (a: number, b: number): number => {
-  return (a * b) / gcd(a, b);
+export const leastCommonMultiple = (a: number, b: number): number => {
+  return (a * b) / greatestCommonDivisor(a, b);
 };

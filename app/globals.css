@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-background;
+    @apply text-current;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

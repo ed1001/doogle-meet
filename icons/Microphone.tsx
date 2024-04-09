@@ -1,6 +1,6 @@
 import { SVGProps } from "react";
 
-export const Microphone: React.FC<SVGProps<SVGSVGElement>> = (props) => (
+export const Microphone = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="25"

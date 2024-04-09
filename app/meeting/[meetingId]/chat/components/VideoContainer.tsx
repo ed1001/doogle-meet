@@ -17,17 +17,13 @@ export default function VideoContainer() {
   return (
     <div
       ref={gridContainerRef}
-      className="flex items-center justify-center w-full h-full bg-red-200"
+      className="flex items-center justify-center w-full h-full bg-secondaryHighlight"
     >
       <div
         ref={gridRef}
-        className="grid gap-2 p-2 items-center overflow-hidden bg-sky-300 w-full"
+        className="grid gap-2 p-2 items-center overflow-hidden w-full"
       >
-        <Video
-          maxHeight={maxVideoHeight}
-          ref={localVidRefCallback}
-          showControlPanel
-        />
+        <Video muted maxHeight={maxVideoHeight} ref={localVidRefCallback} />
         {peerConnectionMappings.map((pcMapping) => {
           return (
             <Video

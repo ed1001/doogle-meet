@@ -112,11 +112,9 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     socketInstance.on(SocketEvents.CONNECT, () => {
       setIsConnected(true);
     });
-
     socketInstance.on(SocketEvents.DISCONNECT, () => {
       setIsConnected(false);
     });
-
     socketInstance.on(SocketEvents.PARTICIPANT_COUNT, setParticipantCount);
 
     setSocket(socketInstance);

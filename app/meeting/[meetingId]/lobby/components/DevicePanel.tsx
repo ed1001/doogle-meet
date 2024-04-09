@@ -23,7 +23,6 @@ export const DevicePanel = () => {
   }, [devices]);
 
   const getDevices = async () => {
-    //TODO: check current device is connected, if not connect to next available
     const devices = await navigator.mediaDevices.enumerateDevices();
     setDevices(devices);
   };
@@ -40,7 +39,7 @@ export const DevicePanel = () => {
   }, [localStream, videoBlocked]);
 
   return (
-    <div className="flex justify-start" onClick={getDevices}>
+    <div className="flex justify-start pt-4 [&>*]:mx-2" onClick={getDevices}>
       <DeviceSelect
         deviceKind="audioinput"
         devices={devicesByKind["audioinput"]}
