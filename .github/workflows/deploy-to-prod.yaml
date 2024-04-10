@@ -18,6 +18,9 @@ jobs:
       - name: Deploy to EC2 as appuser
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null appuser@18.184.47.50 <<EOF
+          YARN_PATH=$(whereis yarn | awk '{print $2}')
+          PM2_PATH=$(whereis pm2 | awk '{print $2}')
+          echo "export PATH=$PATH:$YARN_PATH:$PM2_PATH" >> $GITHUB_ENV
           cd apps/doogle-meet/
           git pull
           yarn install
