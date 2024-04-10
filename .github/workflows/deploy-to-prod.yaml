@@ -23,9 +23,9 @@ jobs:
           echo "export PATH=$PATH:$YARN_PATH:$PM2_PATH" >> $GITHUB_ENV
           cd apps/doogle-meet/
           git pull
-          yarn install
-          yarn build
-          pm2 delete doogle-meet
-          pm2 start yarn --name doogle-meet -- start
-          pm2 log --nostream
+          /home/appuser/.nvm/versions/node/v20.12.0/bin/yarn
+          /home/appuser/.nvm/versions/node/v20.12.0/bin/yarn build
+          /home/appuser/.nvm/versions/node/v20.12.0/bin/pm2 delete doogle-meet
+          /home/appuser/.nvm/versions/node/v20.12.0/bin/yarn start yarn --name doogle-meet -- start
+          /home/appuser/.nvm/versions/node/v20.12.0/bin/yarn log --nostream
           EOF
