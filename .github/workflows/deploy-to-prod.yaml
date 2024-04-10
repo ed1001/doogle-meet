@@ -16,6 +16,7 @@ jobs:
           ssh-private-key: ${{ secrets.APPUSER_SSH_PRIVATE_KEY }}
 
       - name: Deploy to EC2 as appuser
+      - uses: actions/checkout@v4
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null appuser@18.184.47.50 <<EOF
           YARN_PATH=$(whereis yarn | awk '{print $2}')
