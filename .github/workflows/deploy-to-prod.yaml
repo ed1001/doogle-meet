@@ -1,0 +1,23 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.APPUSER_SSH_PRIVATE_KEY }}
+
+      - name: Deploy to EC2 as appuser
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null appuser@18.184.47.50 <<EOF
+          touch test.txt
+          echo SUCCESS
+          EOF
