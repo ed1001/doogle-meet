@@ -19,5 +19,5 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null appuser@18.184.47.50 <<EOF
           touch test.txt
-          echo SUCCESS
+          echo Succeeded
           EOF
