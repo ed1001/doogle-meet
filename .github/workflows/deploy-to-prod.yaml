@@ -18,6 +18,11 @@ jobs:
       - name: Deploy to EC2 as appuser
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null appuser@18.184.47.50 <<EOF
-          touch test.txt
-          echo Succeeded
+          cd apps/doogle-meet/
+          git pull
+          yarn install
+          yarn build
+          pm2 delete doogle-meet
+          pm2 start yarn --name doogle-meet -- start
+          pm2 log --nostream
           EOF
