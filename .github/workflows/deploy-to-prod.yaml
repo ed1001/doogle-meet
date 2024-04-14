@@ -16,21 +16,8 @@ jobs:
           ssh-private-key: ${{ secrets.APPUSER_SSH_PRIVATE_KEY }}
 
       - name: Deploy to EC2 as appuser
-      - uses: actions/checkout@v4
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null appuser@18.184.47.50 <<EOF
-          YARN_PATH=$(whereis yarn | awk '{print $2}')
-          PM2_PATH=$(whereis pm2 | awk '{print $2}')
-          echo "export PATH=$PATH:$YARN_PATH:$PM2_PATH" >> $GITHUB_ENV
-          cd apps/doogle-meet/
-          git pull
-          echo "installing deps"
-          /home/appuser/.nvm/versions/node/v20.12.0/bin/yarn
-          echo "building..."
-          /home/appuser/.nvm/versions/node/v20.12.0/bin/yarn build
-          echo "deleting pm2 app"
-          /home/appuser/.nvm/versions/node/v20.12.0/bin/pm2 delete doogle-meet
-          echo "starting pm2 app"
-          /home/appuser/.nvm/versions/node/v20.12.0/bin/yarn start yarn --name doogle-meet -- start
-          /home/appuser/.nvm/versions/node/v20.12.0/bin/yarn log --nostream
+          echo "printing path..." 
+          echo $PATH
           EOF
