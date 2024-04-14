@@ -18,6 +18,10 @@ jobs:
       - name: Deploy to EC2 as appuser
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t  appuser@18.184.47.50 <<EOF
+          YARN_PATH=$(whereis yarn | awk '{print $2}')
+          PM2_PATH=$(whereis pm2 | awk '{print $2}')
+          NODE_PATH=$(whereis node | awk '{print $2}')
+          PATH=$PATH:$YARN_PATH:$PM2_PATH
           pwd 
           echo "printing path..." 
           source ~/.bashrc 
