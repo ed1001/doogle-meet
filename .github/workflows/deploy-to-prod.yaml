@@ -8,7 +8,8 @@ jobs:
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.APPUSER_SSH_PRIVATE_KEY }}
+          host: "18.184.47.50"
+          key: ${{ secrets.APPUSER_SSH_PRIVATE_KEY }}
           username: appuser
           password: Eduardin321
           script: "echo $PATH"
