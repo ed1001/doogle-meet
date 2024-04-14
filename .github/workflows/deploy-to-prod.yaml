@@ -8,12 +8,13 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/doogle-meet:latest
+      CONTAINER_NAME: doogle-meet
 
     steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.APPUSER_SSH_PRIVATE_KEY }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -27,8 +28,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
-          tags: freddo123/doogle-meet:latest
+          tags: ${{ env.IMAGE_NAME }}
+
+      - name: pull and run docker image/container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 18.184.47.50
+          username: appuser
+          key: ${{ secrets.APPUSER_SSH_PRIVATE_KEY }}
+          script: |
+            echo ${{ secrets.APPUSER_PASSWORD}} | sudo -S docker pull ${{ env.IMAGE_NAME }}
+            echo ${{ secrets.APPUSER_PASSWORD}} | sudo -S docker stop ${{ env.CONTAINER_NAME }}
+            echo ${{ secrets.APPUSER_PASSWORD}} | sudo -S docker rm ${{ env.CONTAINER_NAME }}
+            echo ${{ secrets.APPUSER_PASSWORD}} | sudo -S docker run --detach --name ${{ env.CONTAINER_NAME }} -p 3000:3000 ${{ env.IMAGE_NAME }}

@@ -38,7 +38,7 @@ export default function Lobby() {
           />
           <DevicePanel />
         </div>
-        <div>
+        <div className="ml-4">
           <h1>Ready to join?</h1>
           <p>
             {participantCount
