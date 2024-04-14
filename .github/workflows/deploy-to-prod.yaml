@@ -12,4 +12,4 @@ jobs:
           key: ${{ secrets.APPUSER_SSH_PRIVATE_KEY }}
           username: appuser
           password: Eduardin321
-          script: "echo $PATH"
+          script: "which node"
