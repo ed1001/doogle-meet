@@ -18,6 +18,8 @@ jobs:
       - name: Deploy to EC2 as appuser
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t  appuser@18.184.47.50 <<EOF
+          pwd 
           echo "printing path..." 
+          source ~/.bashrc 
           echo $PATH
           EOF
