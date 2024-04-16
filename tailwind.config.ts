@@ -12,9 +12,9 @@ const config: Config = {
       colors: {
         background: colors.slate[900],
         secondaryHighlight: colors.slate[700],
-        highlight: colors.emerald[300],
-        lowLight: colors.slate[600],
-        current: colors.slate[400],
+        highlight: colors.indigo[500],
+        lowlight: colors.slate[400],
+        current: colors.white,
       },
     },
   },

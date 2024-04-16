@@ -40,7 +40,7 @@ export default function Lobby() {
         </div>
         <div className="flex flex-col items-center p-20">
           <h1 className="text-2xl mb-4">Ready to join?</h1>
-          <p className="text-sm mb-4">
+          <p className="text-sm text-lowlight mb-4">
             {participantCount
               ? `${participantCount} others are on the call`
               : "No one else is here"}

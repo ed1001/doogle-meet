@@ -1,4 +1,5 @@
 import { ForwardedRef, forwardRef } from "react";
+import { motion } from "framer-motion";
 
 import { VideoControlPanel } from "./VideoControlPanel";
 
@@ -9,9 +10,10 @@ export const Video = forwardRef<HTMLVideoElement, Props>(function Video(
   ref: ForwardedRef<HTMLVideoElement>,
 ) {
   return (
-    <div
+    <motion.div
       className="relative flex items-center aspect-video bg-black rounded-lg"
       style={{ maxHeight: `${maxHeight}px` }}
+      layout
     >
       <video
         muted={muted}
@@ -19,6 +21,6 @@ export const Video = forwardRef<HTMLVideoElement, Props>(function Video(
         className="w-full h-full object-contain scale-x-[-1]"
       />
       {showControlPanel ? <VideoControlPanel /> : null}
-    </div>
+    </motion.div>
   );
 });

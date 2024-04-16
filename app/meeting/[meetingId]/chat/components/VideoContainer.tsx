@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 import { attachStreamToVideo } from "@/lib/attachStreamToVideo";
 import { useAppContext } from "@/context/app-context";
 import { useWebRTC } from "@/hooks/useWebRTC";
@@ -19,7 +21,8 @@ export default function VideoContainer() {
       ref={gridContainerRef}
       className="flex items-center justify-center w-full h-full bg-secondaryHighlight"
     >
-      <div
+      <motion.div
+        layout
         ref={gridRef}
         className="grid gap-2 p-2 items-center overflow-hidden w-full"
       >
@@ -37,7 +40,7 @@ export default function VideoContainer() {
             />
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }
