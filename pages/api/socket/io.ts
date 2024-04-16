@@ -13,11 +13,10 @@ import {
 
 export const config = { api: { bodyParser: false } };
 
-let callConnections: CallConnection[] = [];
+let callConnections: { [meetingId: string]: CallConnection[] } = {};
 
-const getRoomId = (roomType: RoomType, meetingId: string) => {
-  return `${roomType}:${meetingId}`;
-};
+const getRoomId = (roomType: RoomType, meetingId: string) =>
+  `${roomType}:${meetingId}`;
 
 const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
   if (res.socket.server.io) {
@@ -79,7 +78,7 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
     });
 
     socket.on(SocketEvents.DISCONNECT, () => {
-      callConnections = callConnections.filter((cc) =>
+      callConnections[meetingId] = callConnections[meetingId]?.filter((cc) =>
         [cc.answerSocketId, cc.offerSocketId].includes(socket.id),
       );
 
@@ -97,18 +96,22 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
         answerSocketId: inverseSocketId,
       };
 
-      callConnections.push(callConnection);
-      const index = callConnections.indexOf(callConnection);
+      if (!callConnections[meetingId]) {
+        callConnections[meetingId] = [];
+      }
+
+      callConnections[meetingId].push(callConnection);
+      const index = callConnections[meetingId].indexOf(callConnection);
 
       socket
         .to(inverseSocketId)
-        .emit(SocketEvents.NEW_OFFER, callConnections.at(index));
+        .emit(SocketEvents.NEW_OFFER, callConnections[meetingId].at(index));
     });
 
     socket.on(
       SocketEvents.ANSWER,
       (callConnection: CallConnection, ackFunction) => {
-        const callConnectionToUpdate = callConnections.find(
+        const callConnectionToUpdate = callConnections[meetingId]?.find(
           (c) =>
             c.offerSocketId === callConnection.offerSocketId &&
             c.answerSocketId === callConnection.answerSocketId,
@@ -132,7 +135,7 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
         const { initiatedOffer, inverseSocketId, iceCandidate } =
           iceCandidatePayload;
 
-        const callConnection = callConnections.find((cc) => {
+        const callConnection = callConnections[meetingId]?.find((cc) => {
           const offerSocketId = initiatedOffer ? socket.id : inverseSocketId;
           const answerSocketId = initiatedOffer ? inverseSocketId : socket.id;
 
