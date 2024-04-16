@@ -28,7 +28,7 @@ export default function Lobby() {
   return (
     <main className="flex items-center min-h-lvh">
       <Navbar />
-      <div className="flex grow justify-center h-full p-4">
+      <div className="flex grow justify-center items-center h-full p-4 flex-col lg:flex-row">
         <div className="flex flex-col">
           <Video
             muted
@@ -38,12 +38,12 @@ export default function Lobby() {
           />
           <DevicePanel />
         </div>
-        <div className="ml-4">
-          <h1>Ready to join?</h1>
-          <p>
+        <div className="flex flex-col items-center p-20">
+          <h1 className="text-2xl mb-4">Ready to join?</h1>
+          <p className="text-sm mb-4">
             {participantCount
               ? `${participantCount} others are on the call`
-              : "no else is here"}
+              : "No one else is here"}
           </p>
           <Button
             text="Join Meeting"
