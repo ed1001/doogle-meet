@@ -1,16 +1,10 @@
 "use client";
 
 import { Dispatch, SetStateAction, createContext, useContext } from "react";
-import { Socket } from "socket.io-client";
 
-import { MeetingState, PeerConnectionMapping } from "@/types";
+import { PeerConnectionMapping } from "@/types";
 
-type AppContextType = {
-  socket?: Socket;
-  isConnected: boolean;
-  setMeetingState: Dispatch<SetStateAction<MeetingState>>;
-  meetingState: MeetingState;
-  participantCount: number;
+type MediaContextType = {
   localStream: MediaStream | null;
   setLocalStream: Dispatch<SetStateAction<MediaStream | null>>;
   localVidRef?: React.MutableRefObject<HTMLVideoElement | null>;
@@ -32,16 +26,12 @@ type AppContextType = {
     audioDeviceId?: string;
     videoDeviceId?: string;
   }) => void;
-  getCurrentInputDeviceIds: () => {
-    [key in Exclude<MediaDeviceKind, "audiooutput">]: string | undefined;
+  getCurrentDeviceIds: () => {
+    [key in MediaDeviceKind]: string | undefined;
   };
 };
 
-export const AppContext = createContext<AppContextType>({
-  isConnected: false,
-  meetingState: MeetingState.LOBBY,
-  setMeetingState: () => {},
-  participantCount: 0,
+export const MediaContext = createContext<MediaContextType>({
   localStream: null,
   setLocalStream: () => {},
   localVidRefCallback: (_element: HTMLVideoElement) => {},
@@ -59,12 +49,13 @@ export const AppContext = createContext<AppContextType>({
     audioDeviceId: _adid,
     videoDeviceId: _vdid,
   }) => {},
-  getCurrentInputDeviceIds: () => {
+  getCurrentDeviceIds: () => {
     return {
       audioinput: undefined,
       videoinput: undefined,
+      audiooutput: undefined,
     };
   },
 });
 
-export const useAppContext = () => useContext(AppContext);
+export const useMediaContext = () => useContext(MediaContext);

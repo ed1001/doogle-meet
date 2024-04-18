@@ -8,7 +8,8 @@ import {
   PeerConnectionMapping,
   SocketEvents,
 } from "@/types";
-import { useAppContext } from "@/context/app-context";
+import { useSocketContext } from "@/context/socket/socket-context";
+import { useMediaContext } from "@/context/media/media-context";
 
 export const peerConfiguration = {
   iceServers: [
@@ -18,12 +19,9 @@ export const peerConfiguration = {
 
 export const useWebRTC = () => {
   const socketInitiated = useRef<boolean>(false);
-  const {
-    socket,
-    localStream,
-    peerConnectionMappings,
-    setPeerConnectionMappings,
-  } = useAppContext();
+  const { socket } = useSocketContext();
+  const { localStream, peerConnectionMappings, setPeerConnectionMappings } =
+    useMediaContext();
 
   const createPeerConnection = useCallback(
     async (inverseSocketId: string, initiatedOffer: boolean) => {

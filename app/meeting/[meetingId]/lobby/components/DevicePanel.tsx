@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { useAppContext } from "@/context/app-context";
-
+import { useMediaContext } from "@/context/media/media-context";
 import { DeviceSelect } from "./DeviceSelect";
 
 export const DevicePanel = () => {
-  const { localStream, videoBlocked } = useAppContext();
+  const { localStream, videoBlocked } = useMediaContext();
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
 
   const devicesByKind = useMemo(() => {

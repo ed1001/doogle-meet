@@ -2,15 +2,15 @@
 
 import { motion } from "framer-motion";
 
+import { useMediaContext } from "@/context/media/media-context";
 import { attachStreamToVideo } from "@/lib/attachStreamToVideo";
-import { useAppContext } from "@/context/app-context";
 import { useWebRTC } from "@/hooks/useWebRTC";
 import { useVideoLayout } from "../hooks/useVideoLayout";
 
 import { Video } from "@/components/video/Video";
 
 export default function VideoContainer() {
-  const { localVidRefCallback } = useAppContext();
+  const { localVidRefCallback } = useMediaContext();
   const { peerConnectionMappings } = useWebRTC();
   const { gridRef, gridContainerRef, maxVideoHeight } = useVideoLayout(
     peerConnectionMappings.length + 1,

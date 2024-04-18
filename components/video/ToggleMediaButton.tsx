@@ -1,15 +1,15 @@
-import { useAppContext } from "@/context/app-context";
 import { Size } from "@/types";
 
+import { useMediaContext } from "@/context/media/media-context";
 import { CircularButton } from "../CircularButton";
 import { Camera } from "@/icons/Camera";
 import { CameraOff } from "@/icons/CameraOff";
 import { Microphone } from "@/icons/Microphone";
 import { MicrophoneOff } from "@/icons/MicrophoneOff";
 
-type Props = { kind: "camera" | "mic"; size: Size; fill?: boolean };
+type Props = { kind: "camera" | "mic"; size: Size };
 
-export const ToggleMediaButton: React.FC<Props> = ({ kind, size, fill }) => {
+export const ToggleMediaButton: React.FC<Props> = ({ kind, size }) => {
   const {
     videoActive,
     setVideoActive,
@@ -18,7 +18,7 @@ export const ToggleMediaButton: React.FC<Props> = ({ kind, size, fill }) => {
     setMicActive,
     micBlocked,
     localStream,
-  } = useAppContext();
+  } = useMediaContext();
 
   const toggleVideoActive = () => {
     if (videoBlocked) {
@@ -56,7 +56,7 @@ export const ToggleMediaButton: React.FC<Props> = ({ kind, size, fill }) => {
   const toggleMediaActive =
     kind === "camera" ? toggleVideoActive : toggleMicActive;
 
-  const iconDimension = size === "sm" ? 18 : 25;
+  const iconDimension = size === "sm" ? 18 : 22;
   const MediaOnIcon = kind === "camera" ? Camera : Microphone;
   const MediaOffIcon = kind === "camera" ? CameraOff : MicrophoneOff;
 
