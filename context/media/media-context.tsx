@@ -26,8 +26,12 @@ type MediaContextType = {
     audioDeviceId?: string;
     videoDeviceId?: string;
   }) => void;
-  getCurrentDeviceIds: () => {
+  currentDeviceIds: {
     [key in MediaDeviceKind]: string | undefined;
+  };
+  triggerRefreshDevices: () => void;
+  availableDevicesByKind: {
+    [key in MediaDeviceKind]: MediaDeviceInfo[];
   };
 };
 
@@ -49,12 +53,16 @@ export const MediaContext = createContext<MediaContextType>({
     audioDeviceId: _adid,
     videoDeviceId: _vdid,
   }) => {},
-  getCurrentDeviceIds: () => {
-    return {
-      audioinput: undefined,
-      videoinput: undefined,
-      audiooutput: undefined,
-    };
+  currentDeviceIds: {
+    audioinput: undefined,
+    videoinput: undefined,
+    audiooutput: undefined,
+  },
+  triggerRefreshDevices: () => {},
+  availableDevicesByKind: {
+    audioinput: [],
+    videoinput: [],
+    audiooutput: [],
   },
 });
 

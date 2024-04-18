@@ -9,8 +9,9 @@ type Props = {
   name: DropdownName;
   visible: boolean;
   options: DropdownOption[];
-  selectedValue: string;
+  selectedValue?: string;
   onChange: (value: string) => void;
+  upwards?: boolean;
 };
 
 export const Dropdown: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const Dropdown: React.FC<Props> = ({
   visible,
   onChange,
   selectedValue,
+  upwards,
 }) => {
   const { dropdownRefs, toggleActiveDropdown } = useDropdownContext();
 
@@ -34,12 +36,17 @@ export const Dropdown: React.FC<Props> = ({
     const { parentElement } = element;
 
     if (parentElement) {
-      const x = parentElement.offsetLeft;
-      const y = parentElement.offsetTop + parentElement.clientHeight;
+      const { offsetLeft, offsetTop, clientHeight } = parentElement;
+      const heightOffset = upwards ? 0 : clientHeight;
+      const x = offsetLeft;
+      let y = offsetTop + heightOffset;
+
+      if (upwards) y -= element.clientHeight;
+
       element.style.left = `${x}px`;
       element.style.top = `${y}px`;
     }
-  }, [visible, dropdownRefs, name]);
+  }, [visible, dropdownRefs, name, upwards]);
 
   return (
     <motion.div

@@ -7,9 +7,13 @@ import { CameraOff } from "@/icons/CameraOff";
 import { Microphone } from "@/icons/Microphone";
 import { MicrophoneOff } from "@/icons/MicrophoneOff";
 
-type Props = { kind: "camera" | "mic"; size: Size };
+type Props = {
+  kind: "camera" | "mic";
+  size: Size;
+} & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-export const ToggleMediaButton: React.FC<Props> = ({ kind, size }) => {
+export const ToggleMediaButton: React.FC<Props> = (props) => {
+  const { kind, size, ...rest } = props;
   const {
     videoActive,
     setVideoActive,
@@ -20,7 +24,9 @@ export const ToggleMediaButton: React.FC<Props> = ({ kind, size }) => {
     localStream,
   } = useMediaContext();
 
-  const toggleVideoActive = () => {
+  const toggleVideoActive = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
     if (videoBlocked) {
       //TODO: show modal to mod preference
     }
@@ -35,7 +41,9 @@ export const ToggleMediaButton: React.FC<Props> = ({ kind, size }) => {
     });
   };
 
-  const toggleMicActive = () => {
+  const toggleMicActive = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
     if (micBlocked) {
       //TODO: show modal to mod preference
     }
@@ -66,6 +74,7 @@ export const ToggleMediaButton: React.FC<Props> = ({ kind, size }) => {
       onClick={toggleMediaActive}
       active={mediaOn}
       className={mediaOn ? "border border-white" : "bg-red-600"}
+      {...rest}
     >
       {mediaOn ? (
         <MediaOnIcon width={iconDimension} height={iconDimension} />

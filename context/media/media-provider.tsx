@@ -1,6 +1,13 @@
 "use client";
 
-import { ReactNode, useCallback, useRef, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { PeerConnectionMapping } from "@/types";
 import { attachStreamToVideo } from "@/lib/attachStreamToVideo";
@@ -16,17 +23,69 @@ export const MediaProvider: React.FC<Props> = ({ children }) => {
   const [videoActive, setVideoActive] = useState<boolean>(true);
   const [micBlocked, setMicBlocked] = useState<boolean>(false);
   const [micActive, setMicActive] = useState<boolean>(true);
+  const [refreshDevices, setRefreshDevices] = useState<boolean>(true);
+  const [availableDevices, setAvailableDevices] = useState<MediaDeviceInfo[]>(
+    [],
+  );
+  const [currentDeviceIds, setCurrentDeviceIds] = useState<{
+    [key in MediaDeviceKind]: string | undefined;
+  }>({
+    audioinput: undefined,
+    videoinput: undefined,
+    audiooutput: undefined,
+  });
   const [peerConnectionMappings, setPeerConnectionMappings] = useState<
     PeerConnectionMapping[]
   >([]);
 
-  const getCurrentDeviceIds = useCallback(() => {
-    return {
+  const availableDevicesByKind = useMemo(() => {
+    const accumulator: { [key in MediaDeviceKind]: MediaDeviceInfo[] } = {
+      audioinput: [],
+      audiooutput: [],
+      videoinput: [],
+    };
+
+    return availableDevices.reduce((acc, device) => {
+      acc[device.kind].push(device);
+
+      return acc;
+    }, accumulator);
+  }, [availableDevices]);
+
+  const getAvailableDevices = useCallback(async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    triggerRefreshDevices();
+    setAvailableDevices(devices);
+  }, []);
+
+  useEffect(() => {
+    navigator.mediaDevices.addEventListener(
+      "devicechange",
+      getAvailableDevices,
+    );
+
+    return () =>
+      navigator.mediaDevices.removeEventListener(
+        "devicechange",
+        getAvailableDevices,
+      );
+  }, [getAvailableDevices]);
+
+  useEffect(() => {
+    getAvailableDevices().catch(console.error);
+  }, [localStream, videoBlocked, getAvailableDevices]);
+
+  const triggerRefreshDevices = () => {
+    setRefreshDevices((prev) => !prev);
+  };
+
+  useEffect(() => {
+    setCurrentDeviceIds({
       audioinput: localStream?.getAudioTracks()[0].getSettings().deviceId,
       videoinput: localStream?.getVideoTracks()[0].getSettings().deviceId,
       audiooutput: localVidRef?.current?.sinkId || "default",
-    };
-  }, [localStream, localVidRefSet]);
+    });
+  }, [localStream, localVidRefSet, refreshDevices]);
 
   const assignDevicesAndStreams = useCallback(
     async ({
@@ -38,13 +97,12 @@ export const MediaProvider: React.FC<Props> = ({ children }) => {
     }) => {
       if (videoBlocked) throw new Error("Video is blocked");
 
-      const currentDeviceIds = getCurrentDeviceIds();
       const constraintsWithDefaults: MediaStreamConstraints = {
         audio: {
           echoCancellation: true,
-          deviceId: audioDeviceId || currentDeviceIds.audioinput,
+          deviceId: audioDeviceId || currentDeviceIds?.audioinput,
         },
-        video: { deviceId: videoDeviceId || currentDeviceIds.videoinput },
+        video: { deviceId: videoDeviceId || currentDeviceIds?.videoinput },
       };
 
       try {
@@ -76,7 +134,7 @@ export const MediaProvider: React.FC<Props> = ({ children }) => {
         console.error(e);
       }
     },
-    [videoBlocked, peerConnectionMappings, getCurrentDeviceIds],
+    [videoBlocked, peerConnectionMappings, currentDeviceIds],
   );
 
   const localVidRefCallback = useCallback(
@@ -108,7 +166,9 @@ export const MediaProvider: React.FC<Props> = ({ children }) => {
         peerConnectionMappings,
         setPeerConnectionMappings,
         assignDevicesAndStreams,
-        getCurrentDeviceIds,
+        currentDeviceIds,
+        triggerRefreshDevices,
+        availableDevicesByKind,
       }}
     >
       {children}
