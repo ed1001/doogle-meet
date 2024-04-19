@@ -73,7 +73,7 @@ export const useVideoLayout = (videoCount: number) => {
     if (remainder) {
       const remainingCells = [...cells].slice(-remainder);
       const emptyColumns = optimalColumns - commonMultiple * remainder;
-      let shiftRightBy = (emptyColumns / 2 + 1).toString();
+      let shiftRightBy = emptyColumns / 2 + 1;
 
       for (const cell of remainingCells) {
         cell.style.gridColumn = `${shiftRightBy} / span ${commonMultiple} `;
