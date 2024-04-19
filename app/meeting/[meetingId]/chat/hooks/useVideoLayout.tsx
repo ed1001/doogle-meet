@@ -7,12 +7,19 @@ export const useVideoLayout = (videoCount: number) => {
   const [maxVideoHeight, setMaxVideoHeight] = useState<number>(200);
 
   const updateGrid = useCallback(() => {
-    if (!gridRef.current || !gridContainerRef.current) {
+    const gridContainer = gridContainerRef.current;
+    const grid = gridRef.current;
+
+    if (!grid || !gridContainer) {
       return;
     }
 
-    const containerHeight = gridContainerRef.current.clientHeight;
-    const containerWidth = gridContainerRef.current.clientWidth;
+    const cells = Array.from(grid.children) as HTMLElement[];
+    const cellMarginOffset = parseInt(getComputedStyle(cells[0]).margin) * 2;
+    const containerPadOffset =
+      parseInt(getComputedStyle(gridContainer).padding) * 2;
+    const containerHeight = gridContainer.clientHeight - containerPadOffset;
+    const containerWidth = gridContainer.clientWidth - containerPadOffset;
     const containerArea = containerHeight * containerWidth;
     const aspectRatio = 16 / 9;
 
@@ -23,12 +30,11 @@ export const useVideoLayout = (videoCount: number) => {
     let lastRemainingSpace = Infinity;
     let videoWidth = 1600;
     let videoHeight = 900;
-    const gapCompensation = parseInt(getComputedStyle(gridRef.current).gap) * 2;
 
     while (true) {
       rows = Math.ceil(videoCount / columns);
-      let cellHeight = containerHeight / rows + gapCompensation;
-      let cellWidth = cellHeight * aspectRatio + gapCompensation;
+      let cellHeight = containerHeight / rows;
+      let cellWidth = cellHeight * aspectRatio;
       const maxVideoPerRow = Math.floor(videoCount / rows);
       const cropWidth = maxVideoPerRow * cellWidth > containerWidth;
 
@@ -51,7 +57,7 @@ export const useVideoLayout = (videoCount: number) => {
         lastRemainingSpace = currentRemainingSpace;
         optimalColumns = columns;
         optimalRows = rows;
-        videoHeight = cellHeight - gapCompensation;
+        videoHeight = cellHeight - cellMarginOffset;
         videoWidth = videoHeight * aspectRatio;
         columns++;
         continue;
@@ -60,11 +66,10 @@ export const useVideoLayout = (videoCount: number) => {
       break;
     }
 
-    gridRef.current.style.width = `${videoWidth * optimalColumns}px`;
+    grid.style.width = `${videoWidth * optimalColumns}px`;
     const remainder = videoCount % optimalColumns;
     let commonMultiple = leastCommonMultiple(optimalColumns, remainder) || 1;
     optimalColumns = optimalColumns * commonMultiple;
-    const cells = Array.from(gridRef.current.children) as HTMLElement[];
 
     for (const cell of cells) {
       cell.style.gridColumn = `span ${commonMultiple}`;
@@ -82,8 +87,8 @@ export const useVideoLayout = (videoCount: number) => {
     }
 
     setMaxVideoHeight(videoHeight);
-    gridRef.current.style.gridTemplateColumns = `repeat(${optimalColumns}, 1fr)`;
-    gridRef.current.style.gridTemplateRows = `repeat(${optimalRows}, 1fr)`;
+    grid.style.gridTemplateColumns = `repeat(${optimalColumns}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${optimalRows}, 1fr)`;
   }, [videoCount]);
 
   useEffect(() => {
