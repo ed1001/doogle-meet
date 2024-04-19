@@ -1,4 +1,4 @@
-import { ForwardedRef, forwardRef, useEffect, useRef } from "react";
+import { ForwardedRef, forwardRef } from "react";
 import { motion } from "framer-motion";
 
 import { VideoControlPanel } from "./VideoControlPanel";
@@ -21,7 +21,7 @@ export const Video = forwardRef<HTMLVideoElement, Props>(function Video(
       <video
         muted={muted}
         ref={ref}
-        className="w-full h-full object-contain scale-x-[-1]"
+        className="size-full object-contain scale-x-[-1]"
       />
       {showControlPanel ? <VideoControlPanel /> : null}
     </motion.div>

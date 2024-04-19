@@ -21,7 +21,7 @@ export default function VideoContainer() {
   return (
     <div
       ref={gridContainerRef}
-      className="flex items-center justify-center w-full h-full p-1 overflow-hidden
+      className="flex items-center justify-center size-full p-1 overflow-hidden
         bg-secondaryHighlight"
     >
       <motion.div

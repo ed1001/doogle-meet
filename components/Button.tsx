@@ -13,7 +13,7 @@ export const Button: React.FC<Props> = (props) => {
       bg-highlight drop-shadow`}
     >
       {text}
-      <div className="absolute top-0 left-0 w-full h-full rounded-full opacity-5 hover:bg-black" />
+      <div className="absolute top-0 left-0 size-full rounded-full opacity-5 hover:bg-black" />
     </button>
   );
 };

@@ -37,11 +37,9 @@ export const DeviceSelect: React.FC<Props> = ({ deviceKind, devices }) => {
         return toggleActiveDropdown(deviceKind);
       }}
     >
-      <div className="flex items-center p-1">
+      <div className="flex items-center p-1 gap-2">
         <Icon width={16} height={16} />
-        <div className="w-32 truncate mx-2 text-xs">
-          {selectedDevice?.label}
-        </div>
+        <div className="w-32 truncate text-xs">{selectedDevice?.label}</div>
         <ChevronDown width={10} height={10} />
       </div>
       <DeviceSelectDropdown deviceKind={deviceKind} devices={devices} />

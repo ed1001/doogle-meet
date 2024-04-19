@@ -38,13 +38,13 @@ export const Dropdown: React.FC<Props> = ({
     if (parentElement) {
       const { offsetLeft, offsetTop, clientHeight } = parentElement;
       const heightOffset = upwards ? 0 : clientHeight;
-      const x = offsetLeft;
-      let y = offsetTop + heightOffset;
+      const left = offsetLeft;
+      let top = offsetTop + heightOffset;
 
-      if (upwards) y -= element.clientHeight;
+      if (upwards) top -= element.clientHeight;
 
-      element.style.left = `${x}px`;
-      element.style.top = `${y}px`;
+      element.style.left = `${left}px`;
+      element.style.top = `${top}px`;
     }
   }, [visible, dropdownRefs, name, upwards]);
 

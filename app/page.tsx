@@ -16,11 +16,11 @@ export default function Home() {
   return (
     <main className="flex items-center justify-center min-h-lvh mx-12">
       <Navbar />
-      <div className="flex flex-col">
-        <h1 className="text-4xl mb-2 text-white">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-4xl text-white">
           Video calls and meetings for all
         </h1>
-        <h2 className="text-lg text-lowlight mb-2">
+        <h2 className="text-lg text-lowlight">
           Doogle meet provides easy to use video calls and meetings for all.
         </h2>
         <Button onClick={createMeeting} text="New meeting" />
