@@ -16,7 +16,7 @@ export const ControlPanel = () => {
   const { toggleActiveDropdown } = useDropdownContext();
 
   return (
-    <div className="flex justify-center items-center flex-shrink-0 h-20 text-white gap-4">
+    <div className="flex h-20 flex-shrink-0 items-center justify-center gap-4 text-white">
       <CircleDropdownBG onClick={() => toggleActiveDropdown("audioinput")}>
         <ToggleMediaButton kind="mic" size="sm" />
         <DeviceSelectDropdown

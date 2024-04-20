@@ -14,14 +14,14 @@ export const Video = forwardRef<HTMLVideoElement, Props>(function Video(
 
   return (
     <motion.div
-      className="relative m-1 flex items-center aspect-video bg-black rounded-lg"
+      className="relative m-1 flex aspect-video items-center rounded-lg bg-black"
       style={{ maxHeight: `${maxHeight}px` }}
       layout={!isFirstRender}
     >
       <video
         muted={muted}
         ref={ref}
-        className="size-full object-contain scale-x-[-1]"
+        className="size-full scale-x-[-1] object-contain"
       />
       {showControlPanel ? <VideoControlPanel /> : null}
     </motion.div>

@@ -9,11 +9,11 @@ export const Button: React.FC<Props> = (props) => {
   return (
     <button
       {...props}
-      className={`relative ${rounded ? "rounded-full" : "rounded-md"} w-fit text-xs p-4 text-white
-      bg-highlight drop-shadow`}
+      className={`relative ${rounded ? "rounded-full" : "rounded-md"} w-fit bg-highlight p-4 text-xs
+      text-white drop-shadow`}
     >
       {text}
-      <div className="absolute top-0 left-0 size-full rounded-full opacity-5 hover:bg-black" />
+      <div className="absolute left-0 top-0 size-full rounded-full opacity-5 hover:bg-black" />
     </button>
   );
 };

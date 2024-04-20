@@ -21,9 +21,9 @@ export const CircularButton: React.FC<Props> = (props) => {
     >
       {children}
       <div
-        className={`absolute top-0 left-0 size-full rounded-full opacity-0 ${
+        className={`absolute left-0 top-0 size-full rounded-full opacity-0 ${
           active ? "bg-current" : "bg-black"
-        } hover:opacity-30 transition-opacity`}
+        } transition-opacity hover:opacity-30`}
       />
     </button>
   );

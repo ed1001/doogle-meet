@@ -21,13 +21,13 @@ export default function VideoContainer() {
   return (
     <div
       ref={gridContainerRef}
-      className="flex items-center justify-center size-full p-1 overflow-hidden
-        bg-secondaryHighlight"
+      className="flex size-full items-center justify-center overflow-hidden bg-secondaryHighlight
+        p-1"
     >
       <motion.div
         layout={!isFirstRender}
         ref={gridRef}
-        className="grid items-center overflow-hidden w-full"
+        className="grid w-full items-center overflow-hidden"
       >
         <Video muted maxHeight={maxVideoHeight} ref={localVidRefCallback} />
         {peerConnectionMappings.map((pcMapping) => {

@@ -5,7 +5,7 @@ export const DevicePanel = () => {
   const { availableDevicesByKind } = useMediaContext();
 
   return (
-    <div className="flex justify-start pt-4 gap-2">
+    <div className="flex justify-start gap-2 pt-4">
       <DeviceSelect
         deviceKind="audioinput"
         devices={availableDevicesByKind["audioinput"]}

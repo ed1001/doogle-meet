@@ -30,14 +30,14 @@ export const DeviceSelect: React.FC<Props> = ({ deviceKind, devices }) => {
 
   return (
     <div
-      className="flex rounded-full py-1 px-2 cursor-pointer text-lowlight border
-        border-transparent transition duration-300 hover:border-current
+      className="flex cursor-pointer rounded-full border border-transparent px-2 py-1
+        text-lowlight transition duration-300 hover:border-current
         hover:bg-secondaryHighlight hover:text-white"
       onClick={() => {
         return toggleActiveDropdown(deviceKind);
       }}
     >
-      <div className="flex items-center p-1 gap-2">
+      <div className="flex items-center gap-2 p-1">
         <Icon width={16} height={16} />
         <div className="w-32 truncate text-xs">{selectedDevice?.label}</div>
         <ChevronDown width={10} height={10} />

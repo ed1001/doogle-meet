@@ -55,7 +55,7 @@ export const Dropdown: React.FC<Props> = ({
 
         dropdownRefs.current[name] = element;
       }}
-      className={`absolute flex flex-col bg-white py-2 rounded ${visible ? "block" : "hidden"}
+      className={`absolute flex flex-col rounded bg-white py-2 ${visible ? "block" : "hidden"}
       shadow`}
       onClick={(e) => {
         e.stopPropagation();
@@ -85,7 +85,7 @@ const DropdownItem = ({
   return (
     <div
       onClick={() => onClick(option.value)}
-      className={`relative flex items-center w-72 pl-8 pr-2 py-3 hover:bg-gray-100 ${
+      className={`relative flex w-72 items-center py-3 pl-8 pr-2 hover:bg-gray-100 ${
         selected ? "text-highlight" : "text-black"
       }`}
     >

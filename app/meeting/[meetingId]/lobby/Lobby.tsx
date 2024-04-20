@@ -23,9 +23,9 @@ export default function Lobby() {
   }, [localStream, assignDevicesAndStreams]);
 
   return (
-    <main className="flex items-center min-h-lvh">
+    <main className="flex min-h-lvh items-center">
       <Navbar />
-      <div className="flex grow justify-center items-center h-full p-4 flex-col lg:flex-row">
+      <div className="flex h-full grow flex-col items-center justify-center p-4 lg:flex-row">
         <div className="flex flex-col">
           <Video
             muted
@@ -35,7 +35,7 @@ export default function Lobby() {
           />
           <DevicePanel />
         </div>
-        <div className="flex flex-col items-center p-20 gap-4">
+        <div className="flex flex-col items-center gap-4 p-20">
           <h1 className="text-2xl">Ready to join?</h1>
           <p className="text-sm text-lowlight">
             {participantCount

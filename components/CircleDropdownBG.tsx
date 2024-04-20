@@ -12,8 +12,8 @@ export const CircleDropdownBG: React.FC<Props> = (props) => {
   return (
     <div
       onClick={onClick}
-      className="flex justify-between items-center pl-2 w-16 bg-secondaryHighlight rounded-full
-        cursor-pointer"
+      className="flex w-16 cursor-pointer items-center justify-between rounded-full bg-secondaryHighlight
+        pl-2"
     >
       <ChevronDown />
       {children}

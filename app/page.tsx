@@ -14,7 +14,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex items-center justify-center min-h-lvh mx-12">
+    <main className="mx-12 flex min-h-lvh items-center justify-center">
       <Navbar />
       <div className="flex flex-col gap-2">
         <h1 className="text-4xl text-white">
