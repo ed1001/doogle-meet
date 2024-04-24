@@ -8,10 +8,8 @@ import { useWebRTC } from "@/hooks/useWebRTC";
 import { useVideoLayout } from "@/hooks/useVideoLayout";
 
 import { Video } from "@/components/video/Video";
-import { useIsFirstRender } from "@/hooks/useFirstRender";
 
 export default function VideoContainer() {
-  const isFirstRender = useIsFirstRender();
   const { localVidRefCallback } = useMediaContext();
   const { peerConnectionMappings } = useWebRTC();
   const { gridRef, gridContainerRef, maxVideoHeight } = useVideoLayout(
@@ -25,14 +23,20 @@ export default function VideoContainer() {
         p-1"
     >
       <motion.div
-        layout={!isFirstRender}
+        layout
         ref={gridRef}
         className="grid w-full items-center overflow-hidden"
       >
-        <Video muted maxHeight={maxVideoHeight} ref={localVidRefCallback} />
+        <Video
+          muted
+          maxHeight={maxVideoHeight}
+          ref={localVidRefCallback}
+          layout
+        />
         {peerConnectionMappings.map((pcMapping) => {
           return (
             <Video
+              layout
               key={pcMapping.inverseSocketId}
               maxHeight={maxVideoHeight}
               ref={(element) => {
