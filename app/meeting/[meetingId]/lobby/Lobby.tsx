@@ -3,16 +3,16 @@
 import { useEffect } from "react";
 
 import { MeetingState } from "@/types";
+import { useMediaContext } from "@/context/media/media-context";
+import { useMeetingContext } from "@/context/meeting/meeting-context";
 
 import { Button } from "@/components/Button";
 import { Navbar } from "@/components/navbar/Navbar";
 import { Video } from "@/components/video/Video";
 import { DevicePanel } from "./components/DevicePanel";
-import { useSocketContext } from "@/context/socket/socket-context";
-import { useMediaContext } from "@/context/media/media-context";
 
 export default function Lobby() {
-  const { setMeetingState, participantCount } = useSocketContext();
+  const { setMeetingState, participantCount } = useMeetingContext();
   const { localStream, localVidRefCallback, assignDevicesAndStreams } =
     useMediaContext();
 

@@ -1,23 +1,18 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 
 import { SocketContext } from "./socket-context";
-import { MeetingState, SocketEvents } from "@/types";
+import { SocketEvents } from "@/types";
+import { useMeetingContext } from "../meeting/meeting-context";
 
 type Props = { children: ReactNode };
 
 export const SocketProvider: React.FC<Props> = ({ children }) => {
-  const params = useParams<{ meetingId: string }>();
-  const { meetingId } = params || {};
+  const { meetingId, meetingState, setParticipantCount } = useMeetingContext();
   const [socket, setSocket] = useState<Socket>();
   const [isConnected, setIsConnected] = useState(false);
-  const [participantCount, setParticipantCount] = useState(0);
-  const [meetingState, setMeetingState] = useState<MeetingState>(
-    MeetingState.LOBBY,
-  );
 
   useEffect(() => {
     if (!meetingId) {
@@ -30,12 +25,8 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
       auth: { meetingId },
     });
 
-    socketInstance.on(SocketEvents.CONNECT, () => {
-      setIsConnected(true);
-    });
-    socketInstance.on(SocketEvents.DISCONNECT, () => {
-      setIsConnected(false);
-    });
+    socketInstance.on(SocketEvents.CONNECT, () => setIsConnected(true));
+    socketInstance.on(SocketEvents.DISCONNECT, () => setIsConnected(false));
     socketInstance.on(SocketEvents.PARTICIPANT_COUNT, setParticipantCount);
 
     setSocket(socketInstance);
@@ -43,7 +34,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     return () => {
       socketInstance.disconnect();
     };
-  }, [meetingId]);
+  }, [meetingId, setParticipantCount]);
 
   useEffect(() => {
     if (!socket) return;
@@ -52,15 +43,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   }, [meetingState, socket]);
 
   return (
-    <SocketContext.Provider
-      value={{
-        socket,
-        isConnected,
-        meetingState,
-        setMeetingState,
-        participantCount,
-      }}
-    >
+    <SocketContext.Provider value={{ socket, isConnected }}>
       {children}
     </SocketContext.Provider>
   );

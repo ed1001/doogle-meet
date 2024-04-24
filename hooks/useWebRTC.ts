@@ -158,9 +158,15 @@ export const useWebRTC = () => {
   const removePeer = useCallback(
     (inverseSocketId: string) => {
       setPeerConnectionMappings((prev) =>
-        prev.filter(
-          (pcMapping) => pcMapping.inverseSocketId !== inverseSocketId,
-        ),
+        prev.filter((pcMapping) => {
+          const keepConnection = pcMapping.inverseSocketId !== inverseSocketId;
+
+          if (!keepConnection) {
+            pcMapping.peerConnection.close();
+          }
+
+          return keepConnection;
+        }),
       );
     },
     [setPeerConnectionMappings],

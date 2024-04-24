@@ -9,13 +9,15 @@ import {
   useState,
 } from "react";
 
-import { PeerConnectionMapping } from "@/types";
+import { PeerConnectionMapping, isActiveMeetingState } from "@/types";
 import { attachStreamToVideo } from "@/lib/attachStreamToVideo";
 import { MediaContext } from "./media-context";
+import { useMeetingContext } from "../meeting/meeting-context";
 
 type Props = { children: ReactNode };
 
 export const MediaProvider: React.FC<Props> = ({ children }) => {
+  const { meetingState } = useMeetingContext();
   const localVidRef = useRef<HTMLVideoElement | null>(null);
   const [localVidRefSet, setLocalVidRefSet] = useState<boolean>(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -147,6 +149,20 @@ export const MediaProvider: React.FC<Props> = ({ children }) => {
     },
     [localStream, localVidRef],
   );
+
+  // clear peer connections when left meeting
+  useEffect(() => {
+    return () => {
+      if (!peerConnectionMappings.length) return;
+      if (isActiveMeetingState(meetingState)) return;
+
+      peerConnectionMappings.forEach((pcMapping) =>
+        pcMapping.peerConnection.close(),
+      );
+
+      setPeerConnectionMappings([]);
+    };
+  }, [meetingState, peerConnectionMappings]);
 
   return (
     <MediaContext.Provider

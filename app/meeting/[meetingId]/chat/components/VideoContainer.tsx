@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useMediaContext } from "@/context/media/media-context";
 import { attachStreamToVideo } from "@/lib/attachStreamToVideo";
 import { useWebRTC } from "@/hooks/useWebRTC";
-import { useVideoLayout } from "../hooks/useVideoLayout";
+import { useVideoLayout } from "@/hooks/useVideoLayout";
 
 import { Video } from "@/components/video/Video";
 import { useIsFirstRender } from "@/hooks/useFirstRender";

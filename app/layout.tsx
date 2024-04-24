@@ -5,6 +5,7 @@ import "./globals.css";
 import { SocketProvider } from "@/context/socket/socket-context-provider";
 import { DropdownProvider } from "@/context/dropdown/dropdown-provider";
 import { MediaProvider } from "@/context/media/media-provider";
+import { MeetingProvider } from "@/context/meeting/meeting-context-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,11 +22,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SocketProvider>
-          <MediaProvider>
-            <DropdownProvider>{children}</DropdownProvider>
-          </MediaProvider>
-        </SocketProvider>
+        <MeetingProvider>
+          <SocketProvider>
+            <MediaProvider>
+              <DropdownProvider>{children}</DropdownProvider>
+            </MediaProvider>
+          </SocketProvider>
+        </MeetingProvider>
       </body>
     </html>
   );

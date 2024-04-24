@@ -1,6 +1,6 @@
 import { MeetingState } from "@/types";
 
-import { useSocketContext } from "@/context/socket/socket-context";
+import { useMeetingContext } from "@/context/meeting/meeting-context";
 import { useMediaContext } from "@/context/media/media-context";
 import { useDropdownContext } from "@/context/dropdown/dropdown-context";
 
@@ -11,7 +11,7 @@ import { CircleDropdownBG } from "@/components/CircleDropdownBG";
 import { DeviceSelectDropdown } from "@/components/DeviceSelectDropdown";
 
 export const ControlPanel = () => {
-  const { setMeetingState } = useSocketContext();
+  const { setMeetingState } = useMeetingContext();
   const { availableDevicesByKind } = useMediaContext();
   const { toggleActiveDropdown } = useDropdownContext();
 

@@ -64,8 +64,14 @@ export enum MeetingState {
   LEFT = "left",
 }
 
-export type RoomType = "lobby" | "chat";
-export type Size = "sm" | "lg";
+export type ActiveMeetingState = Exclude<MeetingState, MeetingState.LEFT>;
 
+export function isActiveMeetingState(
+  meetingState: MeetingState | ActiveMeetingState,
+): meetingState is ActiveMeetingState {
+  return meetingState !== MeetingState.LEFT;
+}
+
+export type Size = "sm" | "lg";
 export type DropdownOption = { value: string; label: string; key: string };
 export type DropdownName = MediaDeviceKind;

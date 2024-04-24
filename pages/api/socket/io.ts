@@ -8,14 +8,14 @@ import {
   OfferPayload,
   IceCandidateFromClientPayload,
   MeetingState,
-  RoomType,
+  ActiveMeetingState,
 } from "@/types";
 
 export const config = { api: { bodyParser: false } };
 
 let callConnections: { [meetingId: string]: CallConnection[] } = {};
 
-const getRoomId = (roomType: RoomType, meetingId: string) =>
+const getRoomId = (roomType: ActiveMeetingState, meetingId: string) =>
   `${roomType}:${meetingId}`;
 
 const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
@@ -30,14 +30,31 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
   const httpServer = res.socket.server as any;
   const io = new ServerIO(httpServer, { path, addTrailingSlash: false });
 
+  const handleLeaveRoom = (roomId: string, socketId: string) => {
+    const socket = io.sockets.sockets.get(socketId);
+
+    if (!socket) throw new Error("socket does not exist");
+
+    const { meetingId } = socket.handshake.auth || {};
+    const chatRoomId = getRoomId(MeetingState.CHAT, meetingId);
+
+    if (chatRoomId !== roomId) return;
+
+    callConnections[meetingId] = callConnections[meetingId]?.filter((cc) =>
+      [cc.answerSocketId, cc.offerSocketId].includes(socket.id),
+    );
+
+    socket.to(chatRoomId).emit(SocketEvents.CLIENT_LEFT, socket.id);
+  };
+
   const reportParticipantCount = (roomId: string, socketId: string) => {
     const socket = io.sockets.sockets.get(socketId);
 
     if (!socket) throw new Error("socket does not exist");
 
     const { meetingId } = socket.handshake.auth || {};
-    const lobbyId = getRoomId("lobby", meetingId);
-    const chatRoomId = getRoomId("chat", meetingId);
+    const lobbyId = getRoomId(MeetingState.LOBBY, meetingId);
+    const chatRoomId = getRoomId(MeetingState.CHAT, meetingId);
 
     if (![lobbyId, chatRoomId].includes(roomId)) return;
 
@@ -47,11 +64,12 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
 
   io.of("/").adapter.on("join-room", reportParticipantCount);
   io.of("/").adapter.on("leave-room", reportParticipantCount);
+  io.of("/").adapter.on("leave-room", handleLeaveRoom);
 
   io.on(SocketEvents.CONNECTION, (socket) => {
     const { meetingId } = socket.handshake.auth;
-    const lobbyId = getRoomId("lobby", meetingId);
-    const chatRoomId = getRoomId("chat", meetingId);
+    const lobbyId = getRoomId(MeetingState.LOBBY, meetingId);
+    const chatRoomId = getRoomId(MeetingState.CHAT, meetingId);
 
     socket.on(SocketEvents.MEETING_STATE, (meetingState: MeetingState) => {
       switch (meetingState) {
@@ -75,14 +93,6 @@ const ioHandler = (_req: NextApiRequest, res: NextApiResponseServerIo) => {
     socket.on(SocketEvents.PEER_READY_FOR_OFFERS, () => {
       socket.join(chatRoomId);
       socket.to(chatRoomId).emit(SocketEvents.SEND_PEER_OFFERS, socket.id);
-    });
-
-    socket.on(SocketEvents.DISCONNECT, () => {
-      callConnections[meetingId] = callConnections[meetingId]?.filter((cc) =>
-        [cc.answerSocketId, cc.offerSocketId].includes(socket.id),
-      );
-
-      socket.to(chatRoomId).emit(SocketEvents.CLIENT_LEFT, socket.id);
     });
 
     socket.on(SocketEvents.OFFER, (offerPayload: OfferPayload) => {
