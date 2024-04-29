@@ -1,21 +1,21 @@
 type Props = {
   text: string;
   rounded?: boolean;
-  outline?: boolean;
+  outlined?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const Button: React.FC<Props> = (props) => {
-  const { text, rounded, outline } = props;
+  const { text, outlined } = props;
 
   return (
     <button
       {...props}
-      className={`relative ${rounded ? "rounded-full" : "rounded-md"} w-fit border border-highlight ${outline ? "" : "bg-highlight"} p-4
+      className={`relative w-fit rounded-md border border-highlight ${outlined ? "" : "bg-highlight"} p-4
       text-xs text-white drop-shadow`}
     >
       {text}
       <div
-        className={`absolute left-0 top-0 size-full ${rounded ? "rounded-full" : "rounded-md"} opacity-5 hover:bg-black`}
+        className={`absolute left-0 top-0 size-full rounded-md opacity-5 hover:bg-black`}
       />
     </button>
   );

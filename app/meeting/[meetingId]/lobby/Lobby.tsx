@@ -7,7 +7,7 @@ import { useMediaContext } from "@/context/media/media-context";
 import { useMeetingContext } from "@/context/meeting/meeting-context";
 
 import { Button } from "@/components/Button";
-import { Navbar } from "@/components/navbar/Navbar";
+import { NAVBAR_HEIGHT, Navbar } from "@/components/navbar/Navbar";
 import { Video } from "@/components/video/Video";
 import { DevicePanel } from "./components/DevicePanel";
 
@@ -23,7 +23,7 @@ export default function Lobby() {
   }, [localStream, assignDevicesAndStreams]);
 
   return (
-    <main className="flex min-h-lvh items-center">
+    <main className={`flex min-h-lvh items-center mt-${NAVBAR_HEIGHT}`}>
       <Navbar />
       <div className="flex h-full grow flex-col items-center justify-center p-4 lg:flex-row">
         <div className="flex flex-col">

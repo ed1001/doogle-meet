@@ -1,8 +1,11 @@
+"use client";
+
+import Link from "next/link";
+
 import { MeetingState } from "@/types";
 
 import { Button } from "@/components/Button";
 import { useMeetingContext } from "@/context/meeting/meeting-context";
-import Link from "next/link";
 
 export default function Left() {
   const { setMeetingState } = useMeetingContext();
@@ -12,7 +15,7 @@ export default function Left() {
       <h1 className="text-4xl">You left the meeting</h1>
       <div className="flex gap-3">
         <Button
-          outline
+          outlined={true}
           text="Rejoin meeting"
           onClick={() => setMeetingState?.(MeetingState.LOBBY)}
         ></Button>
