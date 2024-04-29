@@ -23,7 +23,7 @@ export default function Lobby() {
   }, [localStream, assignDevicesAndStreams]);
 
   return (
-    <main className={`flex min-h-lvh items-center mt-${NAVBAR_HEIGHT}`}>
+    <main className={`flex min-h-lvh items-center pt-${NAVBAR_HEIGHT}`}>
       <Navbar />
       <div className="flex h-full grow flex-col items-center justify-center p-4 lg:flex-row">
         <div className="flex flex-col">

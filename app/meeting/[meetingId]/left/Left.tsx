@@ -11,8 +11,8 @@ export default function Left() {
   const { setMeetingState } = useMeetingContext();
 
   return (
-    <main className="flex h-lvh flex-col items-center justify-center gap-7">
-      <h1 className="text-4xl">You left the meeting</h1>
+    <main className="m-3 flex h-lvh flex-col items-center justify-center gap-7">
+      <h1 className="text-center text-4xl">You left the meeting</h1>
       <div className="flex gap-3">
         <Button
           outlined={true}
